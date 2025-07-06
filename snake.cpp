@@ -105,6 +105,17 @@ int main(int argc, char* argv[]) {
     // Present the renderer to show the initial viewport
     SDL_RenderPresent(renderer);
 
+    // Initialize the apple
+    const int APPLE_WIDTH = 20;
+    const int APPLE_HEIGHT = 20;
+    
+    // Set the initial position of the apple
+    SDL_Rect apple;
+    apple.x = rand() % (WINDOW_WIDTH - APPLE_WIDTH);
+    apple.y = rand() % (WINDOW_HEIGHT - APPLE_HEIGHT);
+    apple.w = APPLE_WIDTH;
+    apple.h = APPLE_HEIGHT;
+
     // Initialize the snake
     const int SNAKE_WIDTH = 20;
     const int SNAKE_HEIGHT = 20;
@@ -116,13 +127,11 @@ int main(int argc, char* argv[]) {
     snake.w = SNAKE_WIDTH;
     snake.h = SNAKE_HEIGHT;
 
-    // Render the initial snake
-    SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255); // Green color for the snake
-    SDL_RenderFillRect(renderer, &snake);
+    // Render the initial apple
+    renderApple(renderer, apple);
 
-    // Render the border around the snake
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); // White color for the border
-    SDL_RenderDrawRect(renderer, &snake); // Draw a border around the snake
+    // Render the initial snake
+    renderSnake(renderer, snake);
 
     // Present the renderer to show the initial snake
     SDL_RenderPresent(renderer);
@@ -138,34 +147,25 @@ int main(int argc, char* argv[]) {
             }
         }
 
-
-
         // Handle keyboard input for snake movement
         handleInput(snake);
 
-        // Render the snake
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Clear the previous frame
-        SDL_RenderClear(renderer);
-        renderSnake(renderer, snake);
-        SDL_RenderPresent(renderer);
-    
-        // Ensure the snake stays within the viewport
-        if (snake.x < 0) snake.x = 0;
-        if (snake.y < 0) snake.y = 0;
-        if (snake.x + snake.w > WINDOW_WIDTH) snake.x = WINDOW_WIDTH - snake.w;
-        if (snake.y + snake.h > WINDOW_HEIGHT) snake.y = WINDOW_HEIGHT - snake.h;
+        // Check for collision with the apple
+        if (SDL_HasIntersection(&snake, &apple)) {
+            // Move the apple to a new random position
+            apple.x = rand() % (WINDOW_WIDTH - apple.w);
+            apple.y = rand() % (WINDOW_HEIGHT - apple.h);
+        }
 
         // Clear the renderer
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
 
-        // Render the snake again
-        SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
-        SDL_RenderFillRect(renderer, &snake);
+        // Render the apple and snake
+        renderApple(renderer, apple);
+        renderSnake(renderer, snake);
 
-        // Render the border around the snake
-        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); // White color for the border
-        SDL_RenderDrawRect(renderer, &snake); // Draw border around the snake
+        // Present the renderer to show the updated state
         SDL_RenderPresent(renderer);
 
         // Delay to control the frame rate
