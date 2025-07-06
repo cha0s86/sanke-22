@@ -1,9 +1,61 @@
 #include <SDL2/SDL.h>
 #include <iostream>
 
+// This is a simple SDL2 Snake game implementation in C++.
+// It initializes SDL, creates a window and renderer, and allows the player to control a snake
+// using the arrow keys. The snake is represented as a rectangle that can move around the screen.
+
 const int WINDOW_WIDTH = 800;
 const int WINDOW_HEIGHT = 600;
 
+void renderApple(SDL_Renderer* renderer, const SDL_Rect& apple) {
+    // Set the color for the apple
+    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); // Red color
+    // Render the apple as a filled rectangle
+    SDL_RenderFillRect(renderer, &apple);
+    // Set the color for the border
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); // White color
+    // Draw a border around the apple
+    SDL_RenderDrawRect(renderer, &apple);
+}
+
+// Function to render the snake
+void renderSnake(SDL_Renderer* renderer, const SDL_Rect& snake) {
+    // Set the color for the snake
+    SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255); // Green color
+    // Render the snake as a filled rectangle
+    SDL_RenderFillRect(renderer, &snake);
+    // Set the color for the border
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); // White color
+    // Draw a border around the snake
+    SDL_RenderDrawRect(renderer, &snake);
+}
+
+// Function to handle keyboard input for snake movement
+void handleInput(SDL_Rect& snake) {
+    // Get the current state of the keyboard
+    const Uint8* currentKeyStates = SDL_GetKeyboardState(NULL);
+    if (currentKeyStates[SDL_SCANCODE_UP]) {
+        snake.y -= 10; // Move up
+    }
+    if (currentKeyStates[SDL_SCANCODE_DOWN]) {
+        snake.y += 10; // Move down
+    }
+    if (currentKeyStates[SDL_SCANCODE_LEFT]) {
+        snake.x -= 10; // Move left
+    }
+    if (currentKeyStates[SDL_SCANCODE_RIGHT]) {
+        snake.x += 10; // Move right
+    }
+    // Ensure the snake stays within the viewport
+    if (snake.x < 0) snake.x = 0;
+    if (snake.y < 0) snake.y = 0;
+    if (snake.x + snake.w > WINDOW_WIDTH) snake.x = WINDOW_WIDTH - snake.w;
+    if (snake.y + snake.h > WINDOW_HEIGHT) snake.y = WINDOW_HEIGHT - snake.h;
+}
+
+
+// Function to initialize SDL and create a window and renderer
 int main(int argc, char* argv[]) {
 
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
@@ -75,6 +127,7 @@ int main(int argc, char* argv[]) {
     // Present the renderer to show the initial snake
     SDL_RenderPresent(renderer);
 
+
     // Main game loop
     bool running = true;
     SDL_Event event;
@@ -85,22 +138,17 @@ int main(int argc, char* argv[]) {
             }
         }
 
-        // Handle keyboard input for snake movement
-        // Get the current state of the keyboard
-        const Uint8* currentKeyStates = SDL_GetKeyboardState(NULL);
-        if (currentKeyStates[SDL_SCANCODE_UP]) {
-            snake.y -= 10;
-        }
-        if (currentKeyStates[SDL_SCANCODE_DOWN]) {
-            snake.y += 10;
-        }
-        if (currentKeyStates[SDL_SCANCODE_LEFT]) {
-            snake.x -= 10;
-        }
-        if (currentKeyStates[SDL_SCANCODE_RIGHT]) {
-            snake.x += 10;
-        }
 
+
+        // Handle keyboard input for snake movement
+        handleInput(snake);
+
+        // Render the snake
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Clear the previous frame
+        SDL_RenderClear(renderer);
+        renderSnake(renderer, snake);
+        SDL_RenderPresent(renderer);
+    
         // Ensure the snake stays within the viewport
         if (snake.x < 0) snake.x = 0;
         if (snake.y < 0) snake.y = 0;
